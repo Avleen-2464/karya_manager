@@ -6,11 +6,24 @@ class Userservice{
 
 CollectionReference users=FirebaseFirestore.instance.collection("users");
 
-addUserToDatabase(AppUser user , String uid){
-  final document=users.doc(uid);
-  Util.uid= uid;
-  document.set(user.toMap());
+ Future<AppUser?> getUserFromDatabase(String uid) async {
+    DocumentSnapshot doc = await users.doc(uid).get();
+    if (doc.exists) {
+      return AppUser.fromMap(doc.data() as Map<String, dynamic>);
+    } 
+    return null; // User not found
   }
+
+addUserToDatabase(AppUser user, String uid) {
+  final document = users.doc(uid);
+  Util.uid = uid;
+  document.set(user.toMap()).then((_) {
+    print("User added to Firestore: $uid");
+  }).catchError((error) {
+    print("Error adding user: $error");
+  });
+}
+
 
 
 
