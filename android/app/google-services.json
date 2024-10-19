@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "40116935205",
+    "project_id": "karya-manager",
+    "storage_bucket": "karya-manager.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:40116935205:android:5579517b0174fbf3717dcc",
+        "android_client_info": {
+          "package_name": "com.example.karya_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUwm7jSNTcG42xB7fdFrE3lvVf1UiaenA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
