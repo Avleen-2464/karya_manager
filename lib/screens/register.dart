@@ -17,7 +17,7 @@ class _RegisterState extends State<Register> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   String? error;
-  bool isLoading=false;
+  bool isLoading = false;
   Userservice service = Userservice();
 
   signIn() async {
@@ -32,7 +32,7 @@ class _RegisterState extends State<Register> {
       });
       return;
     }
-     setState(() {
+    setState(() {
       isLoading = true; // Start loading
     });
 
@@ -71,8 +71,7 @@ class _RegisterState extends State<Register> {
       setState(() {
         error = 'An unexpected error occurred: $e';
       });
-    }
-    finally {
+    } finally {
       setState(() {
         isLoading = false; // Stop loading
       });
@@ -85,7 +84,7 @@ class _RegisterState extends State<Register> {
       backgroundColor: cream, // #f9eed8 background
       appBar: AppBar(
         title: const Text(
-          "Register",
+          "Karya Manager",
           style: TextStyle(color: black), // #231d20
         ),
         backgroundColor: Colors.transparent,
@@ -97,6 +96,13 @@ class _RegisterState extends State<Register> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Logo
+            Image.asset(
+              'assets/logo2.png', // Change this to the logo you want to display
+              height: 100, // Adjust height as needed
+            ),
+            const SizedBox(height: 20),
+
             // Welcome Text
             const Text(
               "Create Account",
@@ -181,8 +187,7 @@ class _RegisterState extends State<Register> {
             const SizedBox(height: 40),
 
             // Register Button
-            isLoading? const Center(child: CircularProgressIndicator(),):
-            ElevatedButton(
+            isLoading ? const Center(child: CircularProgressIndicator()) : ElevatedButton(
               onPressed: signIn,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
@@ -212,7 +217,7 @@ class _RegisterState extends State<Register> {
                 Navigator.pushReplacementNamed(context, "/login");
               },
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 18),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 side: const BorderSide(color: blue), // #1968e8
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -221,7 +226,7 @@ class _RegisterState extends State<Register> {
               child: const Text(
                 "Already a User? Login Here",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 12,
                   color: blue, // #1968e8
                 ),
               ),

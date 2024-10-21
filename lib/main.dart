@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:karya_manager/screens/home.dart';
 import 'package:karya_manager/screens/register.dart';
+import 'package:karya_manager/screens/splash.dart';
 import 'firebase_options.dart';
 import 'screens/login.dart';
+
 
 
 Future<void> main() async {
@@ -27,8 +29,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Karya Manager',
       debugShowCheckedModeBanner: false,
-      initialRoute: "/login",
+      initialRoute: "/",
       routes: {
+        "/":(context)=>Splash(),
         "/register":(context)=>Register(),
         "/login":(context)=>Login(),
         "/home":(context)=>Home(),

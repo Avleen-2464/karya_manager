@@ -1,11 +1,11 @@
-import "package:firebase_auth/firebase_auth.dart";
-import "package:flutter/material.dart";
-import "package:karya_manager/models/todo.dart";
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:karya_manager/models/todo.dart';
 import 'package:karya_manager/services/todo_service.dart';
-import 'package:karya_manager/services/userService.dart'; // Import UserService
-import "package:karya_manager/utils/theme.dart";
-import "../utils/util.dart";
-import 'package:karya_manager/models/user.dart'; // Import AppUser model
+import 'package:karya_manager/services/userService.dart'; 
+import 'package:karya_manager/utils/theme.dart';
+import 'package:karya_manager/utils/util.dart';
+import 'package:karya_manager/models/user.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -17,7 +17,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<ToDoItem> todos = [];
   TodoService service = TodoService();
-  Userservice userservice = Userservice(); // Instantiate UserService
+  Userservice userservice = Userservice();
   AppUser? currentUser; // Variable to hold current user data
 
   @override
@@ -28,56 +28,99 @@ class _HomeState extends State<Home> {
         todos = e;
       });
     });
-    fetchUserData(); // Fetch user data when the widget is initialized
+    fetchUserData();
   }
 
   // Fetch user data from Firestore
   void fetchUserData() async {
     String? uid = FirebaseAuth.instance.currentUser?.uid; // Get the current user's uid
-    print("Current User UID: $uid"); // Debug log
     if (uid != null) {
       try {
         currentUser = await userservice.getUserFromDatabase(uid); // Fetch user data
-        print("Fetched User: $currentUser"); // Debug log
         if (currentUser == null) {
-          print("User not found in Firestore."); // Debug log
+          print("User not found in Firestore.");
         }
       } catch (e) {
-        print("Error fetching user data: $e"); // Catch any errors
+        print("Error fetching user data: $e");
       }
       setState(() {}); // Update the UI
     } else {
-      print("No user is logged in"); // Debug log
+      print("No user is logged in");
     }
   }
 
-  TextEditingController task = TextEditingController();
+  TextEditingController taskController = TextEditingController();
 
   // Method to add task
-  void addtolist(context) {
-    setState(() {
-      service.addTask(ToDoItem(task: task.text.trim(), done: false, id: null));
-    });
+  void addToList(context) {
+    if (taskController.text.trim().isNotEmpty) {
+      setState(() {
+        service.addTask(ToDoItem(task: taskController.text.trim(), done: false, id: null));
+      });
+    }
     Navigator.of(context).pop();
   }
 
   // Method to remove task
-  void removerFromList(index) {
+  void removeFromList(int index) {
     setState(() {
       service.deleteTask(todos[index].id);
     });
   }
 
   // Method to toggle task completion
-  void toggleCheck(index) {
+  void toggleCheck(int index) {
     setState(() {
       service.toggleTodo(todos[index].id);
     });
   }
 
-  // Dialog to add new task
+  // Method to edit a task
+  void editTask(int index) {
+    taskController.text = todos[index].task; // Prefill the task field with the current task
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Edit Task", style: TextStyle(fontSize: 20)),
+              TextField(
+                decoration: const InputDecoration(labelText: "Enter task"),
+                controller: taskController,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      service.updateTask(todos[index].id!, taskController.text.trim());
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Update"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Cancel"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Dialog to add a new task
   void addTodo() {
-    task.clear();
+    taskController.clear(); // Clear the controller before adding a new task
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -89,14 +132,14 @@ class _HomeState extends State<Home> {
               const Text("Add Task", style: TextStyle(fontSize: 20)),
               TextField(
                 decoration: const InputDecoration(labelText: "Enter task"),
-                controller: task,
+                controller: taskController,
               ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    onPressed: () => addtolist(context),
+                    onPressed: () => addToList(context),
                     child: const Text("Add"),
                   ),
                   ElevatedButton(
@@ -122,7 +165,7 @@ class _HomeState extends State<Home> {
         backgroundColor: pink, // Use pink color from theme
         actions: [
           IconButton(
-            icon: const Icon(Icons.power_off),
+            icon: const Icon(Icons.logout),
             onPressed: () {
               FirebaseAuth.instance.signOut();
               Navigator.pushReplacementNamed(context, "/login");
@@ -140,14 +183,14 @@ class _HomeState extends State<Home> {
             // Welcome Message
             Text(
               'Welcome, ${currentUser?.name ?? "User"}!', // Display the user's name or "User" if null
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
 
             // User Profile Information
             Text(
               'Email: ${currentUser?.email ?? "user@example.com"}', // Display the user's email or a placeholder if null
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
 
@@ -169,7 +212,7 @@ class _HomeState extends State<Home> {
                     child: ListTile(
                       title: Text(
                         todos[index].task,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500), // Decorative text style
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500), // Decorative text style
                       ),
                       leading: Checkbox(
                         value: todos[index].done,
@@ -177,9 +220,18 @@ class _HomeState extends State<Home> {
                           toggleCheck(index);
                         },
                       ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () => removerFromList(index),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit), // Edit icon
+                            onPressed: () => editTask(index), // Call editTask method
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.remove), // Remove icon
+                            onPressed: () => removeFromList(index), // Call remove method
+                          ),
+                        ],
                       ),
                     ),
                   );

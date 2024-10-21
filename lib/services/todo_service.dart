@@ -40,4 +40,14 @@ class TodoService {
       }).toList();
     });
   }
+  Future<void> updateTask(String id, String newTask) async {
+    try {
+      await todos!.doc(id).update({
+        'task': newTask, // Update the task field with the new value
+      });
+      print("Task updated successfully");
+    } catch (e) {
+      print("Error updating task: $e");
+    }
+  }
 }

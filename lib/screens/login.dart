@@ -16,14 +16,13 @@ class _LoginState extends State<Login> {
   TextEditingController passwordController = TextEditingController();
   late StreamSubscription<User?> _authSubscription;
   String? error;
-  bool isLoading=false;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _authSubscription = FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
-        // Check if mounted before navigating
         if (mounted) {
           Navigator.pushReplacementNamed(context, "/home");
         }
@@ -33,77 +32,63 @@ class _LoginState extends State<Login> {
 
   @override
   void dispose() {
-    _authSubscription.cancel(); // Cancel the subscription to prevent memory leaks
-    emailController.dispose(); // Dispose controllers
+    _authSubscription.cancel();
+    emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
 
   Future<void> login() async {
-  // Check if email and password fields are empty
-  if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
-    setState(() {
-      error = 'Please fill in both fields.'; // Display error message
-    });
-    return; // Exit the method early
-  }
-  setState(() {
-    isLoading=true;
-  });
-
-  try {
-    // Attempt to sign in
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: emailController.text.trim(),
-      password: passwordController.text.trim(),
-    );
-
-    // Only navigate to home if login is successful
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, "/home");
-    }
-  } on FirebaseAuthException catch (e) {
-    setState(() {
-      // Debugging: Print the caught error code
-      print("Firebase Auth Error: ${e.code}");
-
-      // Handle specific Firebase authentication errors
-      switch (e.code) {
-        case 'user-not-found':
-          error = 'No user found for that email.';
-          break;
-        case 'wrong-password':
-          error = 'Wrong password provided for that user.';
-          break;
-        case 'invalid-credential':
-          error = 'Invalid credentials provided. Please check your email and password.';
-          break;
-        default:
-          error = 'An error occurred. Please try again.';
-          break;
-      }
-    });
-  } catch (e) {
-    setState(() {
-      error = 'An unexpected error occurred: $e'; // Handle unexpected errors
-    });
-    print("Unexpected Error: $e"); // Debugging statement
-  }
-  finally {
+    if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
       setState(() {
-        isLoading = false; // Stop loading
+        error = 'Please fill in both fields.';
+      });
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, "/home");
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        switch (e.code) {
+          case 'user-not-found':
+            error = 'No user found for that email.';
+            break;
+          case 'wrong-password':
+            error = 'Wrong password provided for that user.';
+            break;
+          default:
+            error = 'An error occurred. Please try again.';
+            break;
+        }
+      });
+    } catch (e) {
+      setState(() {
+        error = 'An unexpected error occurred: $e';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
       });
     }
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:cream, // #f9eed8 background
+      backgroundColor: cream, // #f9eed8 background
       appBar: AppBar(
         title: const Text(
-          "Login",
+          "Karya Manager",
           style: TextStyle(color: black), // #231d20
         ),
         backgroundColor: Colors.transparent,
@@ -115,24 +100,33 @@ class _LoginState extends State<Login> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Logo
+            Center(
+              child: Image.asset(
+                'assets/logo2.png', // Path to your logo
+                height: 120, // Adjust logo height
+              ),
+            ),
+            const SizedBox(height: 30), // Adjusted space after logo
+
             // Welcome Text
             const Text(
               "Welcome Back!",
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 28, // Adjusted font size
                 fontWeight: FontWeight.bold,
-                color:black, // #231d20
+                color: black, // #231d20
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20), // Reduced height
 
             // Email TextField
             TextField(
               decoration: InputDecoration(
                 labelText: "Email",
                 labelStyle: const TextStyle(color: black),
-                prefixIcon: const Icon(Icons.email, color:black),
+                prefixIcon: const Icon(Icons.email, color: black),
                 filled: true,
                 fillColor: pink, // #fb8da8
                 border: OutlineInputBorder(
@@ -152,7 +146,7 @@ class _LoginState extends State<Login> {
                 labelStyle: const TextStyle(color: black),
                 prefixIcon: const Icon(Icons.lock, color: black),
                 filled: true,
-                fillColor:pink, // #fb8da8
+                fillColor: pink, // #fb8da8
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -161,26 +155,28 @@ class _LoginState extends State<Login> {
               controller: passwordController,
               obscureText: true,
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30), // Reduced height
 
             // Login Button
-            isLoading?const Center(child: CircularProgressIndicator(),):
-            ElevatedButton(
-              onPressed: login,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // Smaller padding
-                backgroundColor:black, // Ensure you have this color defined
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                "Login",
-                style: TextStyle(fontSize: 16, color:cream), // Adjusted font size
-              ),
-            ),
-
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: login,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      backgroundColor: black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "Login",
+                      style: TextStyle(fontSize: 16, color: cream),
+                    ),
+                  ),
             const SizedBox(height: 20),
+
+            // Error message
             if (error != null)
               Text(
                 error!,
@@ -195,8 +191,8 @@ class _LoginState extends State<Login> {
                 Navigator.pushReplacementNamed(context, "/register");
               },
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                side: const BorderSide(color:blue), // #1968e8
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                side: const BorderSide(color: blue), // #1968e8
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -204,7 +200,7 @@ class _LoginState extends State<Login> {
               child: const Text(
                 "New User? Register Here",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 12,
                   color: blue, // #1968e8
                 ),
               ),
